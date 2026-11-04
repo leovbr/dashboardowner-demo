@@ -156,7 +156,7 @@
     const p=profile(),s=session(),u=users().find(x=>x.username===s?.username)||{};
     const m=modal("Edit Profil Toko",'<div class="ac-avatar" id="acAvatar">'+(p.avatar?'<img src="'+p.avatar+'" alt="">':"👤")+'</div><label class="ac-upload">📷 Pilih Foto<input id="acPhoto" type="file" accept="image/*" hidden></label><section class="ac-crop-editor" id="acCropEditor" hidden><p class="ac-crop-help">Geser foto ke kiri, kanan, atas, atau bawah. Cubit dua jari untuk zoom; gunakan slider jika diperlukan.</p><div class="ac-crop-window" id="acCropWindow"><canvas id="acCropCanvas" width="512" height="512" aria-label="Pratinjau crop foto"></canvas></div><label class="ac-crop-zoom">Zoom <input id="acCropZoom" type="range" min="1" max="4" step="0.01" value="1"></label><div class="ac-crop-actions"><button class="btn secondary" id="acCropCancel" type="button">Batal</button><button class="btn" id="acCropApply" type="button">Gunakan Foto</button></div></section><form id="acForm" class="ac-form"><label>Nama toko<input id="acName" maxlength="80" value="'+escapeHtml(p.businessName||"")+'" placeholder="Nama toko"></label><label>Nama pemilik<input id="acOwner" maxlength="60" value="'+escapeHtml(p.ownerName||u.name||"")+'" placeholder="Nama pemilik"></label><label>Nomor WhatsApp<input id="acPhone" type="tel" maxlength="24" value="'+escapeHtml(p.businessPhone||"")+'" placeholder="08xxxxxxxxxx"></label><label>Deskripsi toko<textarea id="acDesc" maxlength="240">'+escapeHtml(p.businessDesc||"")+'</textarea></label><button class="btn" type="submit">Simpan Profil</button></form>');
     const photoInput=m.querySelector("#acPhoto"),cropEditor=m.querySelector("#acCropEditor"),cropWindow=m.querySelector("#acCropWindow"),canvas=m.querySelector("#acCropCanvas"),ctx=canvas.getContext("2d"),zoomInput=m.querySelector("#acCropZoom");
-    let sourceImage=null,centerX=0,centerY=0,zoom=1,pointers=new Map(),gesture=null;
+    let sourceImage=null,centerX=0,centerY=0,zoom=1,pointers=new Map(),gesture=null,croppedAvatar=p.avatar||"";
     const cropSide=()=>Math.min(sourceImage.naturalWidth,sourceImage.naturalHeight)/zoom;
     const clampCenter=()=>{const side=cropSide();centerX=Math.max(side/2,Math.min(sourceImage.naturalWidth-side/2,centerX));centerY=Math.max(side/2,Math.min(sourceImage.naturalHeight-side/2,centerY));};
     const drawCrop=()=>{
@@ -205,13 +205,13 @@
     m.querySelector("#acCropCancel").onclick=()=>{cropEditor.hidden=true;photoInput.value="";sourceImage=null;pointers.clear();gesture=null;};
     m.querySelector("#acCropApply").onclick=()=>{
       if(!sourceImage)return;drawCrop();
-      m.dataset.avatar=canvas.toDataURL("image/jpeg",.88);
-      m.querySelector("#acAvatar").innerHTML='<img src="'+m.dataset.avatar+'" alt="Foto profil">';
+      croppedAvatar=canvas.toDataURL("image/jpeg",.88);
+      const avatarPreview=m.querySelector("#acAvatar");avatarPreview.replaceChildren();const previewImage=document.createElement("img");previewImage.alt="Foto profil";previewImage.src=croppedAvatar;avatarPreview.appendChild(previewImage);
       cropEditor.hidden=true;sourceImage=null;pointers.clear();gesture=null;photoInput.value="";
     };
     m.querySelector("#acForm").onsubmit=e=>{
       e.preventDefault();
-      const nextProfile={...profile(),businessName:m.querySelector("#acName").value.trim(),ownerName:m.querySelector("#acOwner").value.trim(),businessPhone:m.querySelector("#acPhone").value.trim(),businessDesc:m.querySelector("#acDesc").value.trim(),avatar:m.dataset.avatar||profile().avatar||""};
+      const nextProfile={...profile(),businessName:m.querySelector("#acName").value.trim(),ownerName:m.querySelector("#acOwner").value.trim(),businessPhone:m.querySelector("#acPhone").value.trim(),businessDesc:m.querySelector("#acDesc").value.trim(),avatar:croppedAvatar||profile().avatar||""};
       localStorage.setItem(PROFILE_KEY,JSON.stringify(nextProfile));
       m.remove();render();
     };
