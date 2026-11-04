@@ -1,15 +1,12 @@
 (() => {
   "use strict";
   const USERS_KEY="dashboardowner_demo_proto_users_v1", SESSION_KEY="dashboardowner_demo_proto_session_v1", PROFILE_KEY="dashboardowner_demo_profile_v1", PRODUCTS_KEY="dashboardowner_demo_products_v1", REPORTS_KEY="dashboardowner_demo_reports_v1", REVENUE_KEY="dashboardowner_demo_daily_revenue_v1";
-  const DEFAULT_PRODUCTS=[
-    ["1 potong ayam original",8000],["1 ayam spicy tanpa nasi",11000],["1 ayam spicy pakai nasi",13000],
-    ["1 ayam geprek tanpa nasi",11000],["1 ayam geprek pakai nasi",13000],["1 jamur crispy",5000],
-    ["1 tusuk bakso",1000],["1 sambal geprek saja",3000],["1 nasi saja",3000],["1 cup usus ayam",5000],["1 hati rampela",5000]
-  ];
+  const DEFAULT_PRODUCTS=[["1 (nama produk)",8000],["1 (nama produk2)",11000],["1 (nama produk3)",13000]];
   const app=document.getElementById("app"); let mode="login"; let selectedRole="owner";
   const read=(k,f)=>{try{return JSON.parse(localStorage.getItem(k))??f}catch{return f}};
   const users=()=>read(USERS_KEY,[]), session=()=>read(SESSION_KEY,null), profile=()=>read(PROFILE_KEY,{});
-  const products=()=>{let p=read(PRODUCTS_KEY,null);if(!Array.isArray(p)){p=DEFAULT_PRODUCTS.map(x=>({name:x[0],price:x[1],active:true}));localStorage.setItem(PRODUCTS_KEY,JSON.stringify(p));}return p;};
+  const PRODUCT_SEED_KEY="dashboardowner_demo_products_seed_v2";
+  const products=()=>{let p=read(PRODUCTS_KEY,null);if(localStorage.getItem(PRODUCT_SEED_KEY)!=="v2"){p=DEFAULT_PRODUCTS.map(x=>({name:x[0],price:x[1],onlinePrice:x[1],active:true}));localStorage.setItem(PRODUCTS_KEY,JSON.stringify(p));localStorage.setItem(PRODUCT_SEED_KEY,"v2");}else if(!Array.isArray(p)){p=DEFAULT_PRODUCTS.map(x=>({name:x[0],price:x[1],onlinePrice:x[1],active:true}));localStorage.setItem(PRODUCTS_KEY,JSON.stringify(p));}return p;};
   const INVENTORY_KEY="dashboardowner_demo_inventory_v1";
   const INVENTORY_ITEMS=[
     {key:"rawChicken",label:"Ayam mentah",color:"#60a5fa",unit:"potong"},
@@ -161,65 +158,11 @@
   function modal(title,body){document.querySelector(".ac-modal")?.remove();const w=document.createElement("div");w.className="ac-modal";w.innerHTML='<section class="ac-dialog" role="dialog" aria-modal="true"><header class="ac-head"><h2>'+title+'</h2><button class="ac-close" type="button" aria-label="Tutup">×</button></header>'+body+'</section>';document.body.appendChild(w);w.querySelector(".ac-close").onclick=()=>w.remove();w.onclick=e=>{if(e.target===w)w.remove();};return w;}
   function openAccountPanel(){document.getElementById("account-popover")?.remove();const p=profile(),s=session(),u=users().find(x=>x.username===s?.username)||{},pop=document.createElement("div");pop.id="account-popover";pop.className="account-popover";pop.innerHTML='<div class="account-popover-head"><div class="account-avatar">'+(p.avatar?'<img src="'+p.avatar+'" alt="">':"👤")+'</div><div><b>'+escapeHtml(p.ownerName||u.name||u.username||"Akun")+'</b><small>Owner</small></div></div><button type="button" data-account-action="profile">✏️ Edit Profil Toko</button><button type="button" data-account-action="settings">⚙️ Pengaturan Akun</button>';document.querySelector(".topbar-inner").appendChild(pop);pop.querySelectorAll("[data-account-action]").forEach(b=>b.onclick=()=>{pop.remove();if(b.dataset.accountAction==="profile")openProfile();else if(b.dataset.accountAction==="settings")openSettings();});}
   function openProfile(){
-    const p=profile(),s=session(),u=users().find(x=>x.username===s?.username)||{};
-    const m=modal("Edit Profil Toko",'<div class="ac-avatar" id="acAvatar">'+(p.avatar?'<img src="'+p.avatar+'" alt="">':"👤")+'</div><label class="ac-upload">📷 Pilih Foto<input id="acPhoto" type="file" accept="image/*" hidden></label><section class="ac-crop-editor" id="acCropEditor" hidden><p class="ac-crop-help">Geser foto ke kiri, kanan, atas, atau bawah. Cubit dua jari untuk zoom; gunakan slider jika diperlukan.</p><div class="ac-crop-window" id="acCropWindow"><canvas id="acCropCanvas" width="512" height="512" aria-label="Pratinjau crop foto"></canvas></div><label class="ac-crop-zoom">Zoom <input id="acCropZoom" type="range" min="1" max="4" step="0.01" value="1"></label><div class="ac-crop-actions"><button class="btn secondary" id="acCropCancel" type="button">Batal</button><button class="btn" id="acCropApply" type="button">Gunakan Foto</button></div></section><form id="acForm" class="ac-form"><label>Nama toko<input id="acName" maxlength="80" value="'+escapeHtml(p.businessName||"")+'" placeholder="Nama toko"></label><label>Nama pemilik<input id="acOwner" maxlength="60" value="'+escapeHtml(p.ownerName||u.name||"")+'" placeholder="Nama pemilik"></label><label>Nomor WhatsApp<input id="acPhone" type="tel" maxlength="24" value="'+escapeHtml(p.businessPhone||"")+'" placeholder="08xxxxxxxxxx"></label><label>Deskripsi toko<textarea id="acDesc" maxlength="240">'+escapeHtml(p.businessDesc||"")+'</textarea></label><button class="btn" type="submit">Simpan Profil</button></form>');
-    const photoInput=m.querySelector("#acPhoto"),cropEditor=m.querySelector("#acCropEditor"),cropWindow=m.querySelector("#acCropWindow"),canvas=m.querySelector("#acCropCanvas"),ctx=canvas.getContext("2d"),zoomInput=m.querySelector("#acCropZoom");
-    let sourceImage=null,centerX=0,centerY=0,zoom=1,pointers=new Map(),gesture=null,croppedAvatar=p.avatar||"";
-    const cropSide=()=>Math.min(sourceImage.naturalWidth,sourceImage.naturalHeight)/zoom;
-    const clampCenter=()=>{const side=cropSide();centerX=Math.max(side/2,Math.min(sourceImage.naturalWidth-side/2,centerX));centerY=Math.max(side/2,Math.min(sourceImage.naturalHeight-side/2,centerY));};
-    const drawCrop=()=>{
-      if(!sourceImage)return;
-      clampCenter();const side=cropSide();
-      ctx.clearRect(0,0,512,512);
-      ctx.drawImage(sourceImage,centerX-side/2,centerY-side/2,side,side,0,0,512,512);
-    };
-    const setZoom=value=>{zoom=Math.max(1,Math.min(4,value));zoomInput.value=String(zoom);drawCrop();};
-    photoInput.onchange=e=>{
-      const file=e.target.files?.[0];if(!file)return;
-      if(!file.type.startsWith("image/")){alert("Pilih file gambar yang valid.");photoInput.value="";return;}
-      if(file.size>8*1024*1024){alert("Ukuran foto maksimal 8 MB.");photoInput.value="";return;}
-      const reader=new FileReader();
-      reader.onload=()=>{const img=new Image();img.onload=()=>{sourceImage=img;centerX=img.naturalWidth/2;centerY=img.naturalHeight/2;zoom=1;zoomInput.value="1";cropEditor.hidden=false;drawCrop();};img.onerror=()=>alert("Foto tidak dapat dibuka.");img.src=reader.result;};
-      reader.readAsDataURL(file);
-    };
-    zoomInput.oninput=()=>setZoom(Number(zoomInput.value));
-    const pointDistance=pts=>{const a=[...pts.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);};
-    cropWindow.onpointerdown=e=>{
-      if(!sourceImage)return;e.preventDefault();cropWindow.setPointerCapture(e.pointerId);
-      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-      if(pointers.size===1)gesture={type:"drag",x:e.clientX,y:e.clientY,cx:centerX,cy:centerY};
-      else if(pointers.size===2)gesture={type:"pinch",distance:pointDistance(pointers),zoom};
-    };
-    cropWindow.onpointermove=e=>{
-      if(!pointers.has(e.pointerId)||!sourceImage)return;e.preventDefault();
-      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-      const rect=cropWindow.getBoundingClientRect(),side=cropSide();
-      if(pointers.size>=2&&gesture?.type==="pinch"){
-        const distance=pointDistance(pointers);
-        if(gesture.distance>0)setZoom(gesture.zoom*distance/gesture.distance);
-      }else if(pointers.size===1&&gesture?.type==="drag"){
-        centerX=gesture.cx-(e.clientX-gesture.x)*side/rect.width;
-        centerY=gesture.cy-(e.clientY-gesture.y)*side/rect.height;
-        drawCrop();
-      }
-    };
-    const endPointer=e=>{
-      pointers.delete(e.pointerId);
-      if(pointers.size===1){const [id,pt]=[...pointers.entries()][0];gesture={type:"drag",x:pt.x,y:pt.y,cx:centerX,cy:centerY};}
-      else if(pointers.size===2)gesture={type:"pinch",distance:pointDistance(pointers),zoom};
-      else gesture=null;
-    };
-    cropWindow.onpointerup=endPointer;cropWindow.onpointercancel=endPointer;cropWindow.onlostpointercapture=endPointer;
-    m.querySelector("#acCropCancel").onclick=()=>{cropEditor.hidden=true;photoInput.value="";sourceImage=null;pointers.clear();gesture=null;};
-    m.querySelector("#acCropApply").onclick=()=>{
-      if(!sourceImage)return;drawCrop();
-      croppedAvatar=canvas.toDataURL("image/jpeg",.88);
-      const avatarPreview=m.querySelector("#acAvatar");avatarPreview.replaceChildren();const previewImage=document.createElement("img");previewImage.alt="Foto profil";previewImage.src=croppedAvatar;avatarPreview.appendChild(previewImage);
-      cropEditor.hidden=true;sourceImage=null;pointers.clear();gesture=null;photoInput.value="";
-    };
+    const p=profile(),sessionData=session(),u=users().find(x=>x.username===sessionData?.username)||{};
+    const m=modal("Edit Profil Toko",'<form id="acForm" class="ac-form"><label>Nama toko<input id="acName" maxlength="80" required value="'+escapeHtml(p.businessName||"")+'" placeholder="Nama toko"></label><label>Nama pemilik<input id="acOwner" maxlength="60" value="'+escapeHtml(p.ownerName||u.name||"")+'" placeholder="Nama pemilik"></label><label>Nomor WhatsApp<input id="acPhone" type="tel" maxlength="24" value="'+escapeHtml(p.businessPhone||"")+'" placeholder="08xxxxxxxxxx"></label><button class="btn" type="submit">Simpan Profil</button></form>');
     m.querySelector("#acForm").onsubmit=e=>{
       e.preventDefault();
-      const nextProfile={...profile(),businessName:m.querySelector("#acName").value.trim(),ownerName:m.querySelector("#acOwner").value.trim(),businessPhone:m.querySelector("#acPhone").value.trim(),businessDesc:m.querySelector("#acDesc").value.trim(),avatar:croppedAvatar||profile().avatar||""};
+      const nextProfile={...profile(),businessName:m.querySelector("#acName").value.trim(),ownerName:m.querySelector("#acOwner").value.trim(),businessPhone:m.querySelector("#acPhone").value.trim()};
       localStorage.setItem(PROFILE_KEY,JSON.stringify(nextProfile));
       m.remove();render();
     };
