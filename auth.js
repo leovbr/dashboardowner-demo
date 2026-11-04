@@ -49,17 +49,91 @@
   const escapeHtml=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const setError=msg=>{const e=document.getElementById("error");if(e)e.textContent=msg||"";};
   function renderAuth(){
-    document.getElementById("topbar").hidden=true;document.getElementById("staffTopbar").hidden=true;document.getElementById("brandIntro").hidden=false;
-    const intro=document.getElementById("brandIntro");intro.querySelector("h1").innerHTML='Dashboard<span>Owner DEMO</span>';intro.querySelector(".muted").textContent="Mode demo lokal — data hanya tersimpan di browser ini.";
-    const ownerFields=mode==="register"?'<label class="field"><span>Nama owner</span><input name="name" maxlength="80" required placeholder="Nama kamu"></label><label class="field"><span>Nama usaha</span><input name="business_name" maxlength="100" required placeholder="Nama toko / warung"></label><label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" maxlength="254" required placeholder="nama@email.com"></label>':'<label class="field"><span>Email</span><input name="owner_email" type="email" autocomplete="username" maxlength="254" required placeholder="nama@email.com"></label>';
+    document.getElementById("topbar").hidden=true;
+    document.getElementById("staffTopbar").hidden=true;
+    document.getElementById("brandIntro").hidden=false;
+    const intro=document.getElementById("brandIntro");
+    intro.querySelector("h1").innerHTML='Dashboard<span>Owner DEMO</span>';
+    intro.querySelector(".muted").textContent="Mode demo lokal — data hanya tersimpan di browser ini.";
+
+    const ownerFields=mode==="register"
+      ? '<label class="field"><span>Nama owner</span><input name="name" maxlength="80" required placeholder="Nama kamu"></label><label class="field"><span>Nama usaha</span><input name="business_name" maxlength="100" required placeholder="Nama toko / warung"></label><label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" maxlength="254" required placeholder="nama@email.com"></label>'
+      : '<label class="field"><span>Masukkan email</span><input name="owner_email" type="email" autocomplete="username" maxlength="254" required placeholder="nama@email.com"></label>';
     const staffFields='<label class="field"><span>Username</span><input name="username" autocomplete="username" minlength="3" maxlength="32" required placeholder="Username staff"></label><label class="field"><span>Kode toko</span><input name="store_code" required maxlength="40" placeholder="Kode dari owner"></label>';
-    app.innerHTML='<h2>'+(mode==="login"?"Selamat datang":"Daftarkan akun owner")+'</h2><p class="sub">'+(mode==="login"?"Masuk ke simulasi DashboardOwner.":"Buat akun demo yang tersimpan di browser ini.")+'</p><form id="auth-form" novalidate>'+(mode==="login"?'<label class="field"><span><span id="login-role-label">Masuk sebagai</span><select name="role" id="login-role"><option value="owner">Owner</option><option value="manager">Manager</option><option value="kitchen">Kitchen</option><option value="waiter">Waiter / Penjual</option></select></label>':'')+(mode==="register"?ownerFields:('<div id="owner-login-fields">'+ownerFields+'</div><div id="staff-login-fields" hidden>'+staffFields+'</div>'))+'<label class="field"><span id="login-password-label">'+(mode==="login"&&selectedRole!=="owner"?"PIN / Password":"Password")+'</span><input name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="Minimal 6 karakter"></label><p id="error" class="error" role="alert"></p><button class="btn" type="submit">'+(mode==="login"?"Masuk":"Buat akun owner")+'</button></form><button id="switch-mode" class="switch" type="button">'+(mode==="login"?"Belum punya akun owner? Daftar":"Sudah punya akun? Login")+'</button><div class="notice">DEMO: akun, password, dan data usaha disimpan di localStorage browser. Jangan gunakan password asli atau data sensitif.</div>';
-    const roleSelect=document.getElementById("login-role");if(roleSelect){roleSelect.value=selectedRole;const sync=()=>{selectedRole=roleSelect.value;document.getElementById("owner-login-fields").hidden=selectedRole!=="owner";document.getElementById("staff-login-fields").hidden=selectedRole==="owner";const label=document.getElementById("login-password-label");if(label)label.textContent=selectedRole==="owner"?"Password":"PIN / Password";};roleSelect.onchange=sync;sync();}
-    document.getElementById("switch-mode").onclick=()=>{mode=mode==="login"?"register":"login";renderAuth();};
-    document.getElementById("auth-form").onsubmit=e=>{e.preventDefault();const fd=new FormData(e.currentTarget),password=String(fd.get("password")||"");if(password.length<6)return setError("Password minimal 6 karakter.");const submit=e.currentTarget.querySelector('button[type="submit"]');submit.disabled=true;
-      try{if(mode==="register"){const name=String(fd.get("name")||"").trim(),businessName=String(fd.get("business_name")||"").trim(),email=String(fd.get("email")||"").trim().toLowerCase();if(!name||!businessName||!email)throw new Error("Nama owner, nama usaha, dan email wajib diisi.");if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))throw new Error("Format email tidak valid.");if(users().some(x=>String(x.email||"").trim().toLowerCase()===email))throw new Error("Email sudah terdaftar. Gunakan email lain atau masuk dengan akun tersebut.");const id="owner-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),username=id.toLowerCase(),storeCode=("DEMO"+Math.random().toString(36).slice(2,7)).toUpperCase(),u={id,username,password,name,email,role:"owner",storeCode,active:true,createdAt:new Date().toISOString()};localStorage.setItem(USERS_KEY,JSON.stringify([...users(),u]));localStorage.setItem(PROFILE_KEY,JSON.stringify({ownerName:name,businessName,businessPhone:"",businessDesc:"",avatar:""}));localStorage.setItem(SESSION_KEY,JSON.stringify({username,role:"owner",signedInAt:new Date().toISOString()}));render();}
-      else{const identity=String(fd.get(selectedRole==="owner"?"owner_email":"username")||"").trim().toLowerCase(),storeCode=String(fd.get("store_code")||"").trim().toUpperCase(),u=users().find(x=>(selectedRole==="owner"?String(x.email||"").trim().toLowerCase()===identity:x.username===identity)&&x.password===password&&(selectedRole==="owner"?x.role==="owner":x.role===selectedRole)&&(!storeCode||String(x.storeCode||"").toUpperCase()===storeCode));if(!u)throw new Error(selectedRole==="owner"?"Email atau password tidak cocok.":"Username, password/PIN, atau kode toko tidak cocok.");if(u.active===false)throw new Error("Akun dinonaktifkan oleh Owner.");localStorage.setItem(SESSION_KEY,JSON.stringify({username:u.username,role:u.role,signedInAt:new Date().toISOString()}));if(u.role==="owner"&&!profile().businessName)localStorage.setItem(PROFILE_KEY,JSON.stringify({ownerName:u.name||u.username,businessName:u.storeName||"Usaha Demo",businessPhone:"",avatar:""}));render();}}
-      catch(err){setError(err.message||"Proses gagal.");}finally{submit.disabled=false;}};
+
+    const roleField=mode==="login"
+      ? '<label class="field"><span>Masuk sebagai</span><select name="role" id="login-role"><option value="owner">Owner</option><option value="manager">Manager</option><option value="kitchen">Kitchen</option><option value="waiter">Waiter / Penjual</option></select></label>'
+      : '';
+    const identityFields=mode==="register"
+      ? ownerFields
+      : '<div id="owner-login-fields">'+ownerFields+'</div><div id="staff-login-fields" hidden>'+staffFields+'</div>';
+
+    app.innerHTML='<h2>'+(mode==="login"?"Selamat datang":"Daftarkan akun owner")+'</h2>'
+      +'<p class="sub">'+(mode==="login"?"Masuk ke simulasi DashboardOwner.":"Buat akun demo yang tersimpan di browser ini.")+'</p>'
+      +'<form id="auth-form" novalidate>'+roleField+identityFields
+      +'<label class="field"><span id="login-password-label">'+(mode==="login"&&selectedRole!=="owner"?"PIN / Password":"Password")+'</span><input name="password" type="password" autocomplete="current-password" minlength="6" required placeholder="Minimal 6 karakter"></label>'
+      +'<p id="error" class="error" role="alert"></p><button class="btn" type="submit">'+(mode==="login"?"Masuk":"Buat akun owner")+'</button></form>'
+      +'<button id="switch-mode" class="switch" type="button">'+(mode==="login"?"Belum punya akun owner? Daftar":"Sudah punya akun? Login")+'</button>'
+      +'<div class="notice">DEMO: akun, password, dan data usaha disimpan di localStorage browser. Jangan gunakan password asli atau data sensitif.</div>';
+
+    const roleSelect=document.getElementById("login-role");
+    if(roleSelect){
+      roleSelect.value=selectedRole;
+      const sync=()=>{
+        selectedRole=roleSelect.value;
+        document.getElementById("owner-login-fields").hidden=selectedRole!=="owner";
+        document.getElementById("staff-login-fields").hidden=selectedRole==="owner";
+        const label=document.getElementById("login-password-label");
+        if(label)label.textContent=selectedRole==="owner"?"Password":"PIN / Password";
+      };
+      roleSelect.onchange=sync;
+      sync();
+    }
+    document.getElementById("switch-mode").onclick=()=>{
+      mode=mode==="login"?"register":"login";
+      renderAuth();
+    };
+    document.getElementById("auth-form").onsubmit=e=>{
+      e.preventDefault();
+      const fd=new FormData(e.currentTarget),password=String(fd.get("password")||"");
+      if(password.length<6)return setError("Password minimal 6 karakter.");
+      const submit=e.currentTarget.querySelector('button[type="submit"]');
+      submit.disabled=true;
+      try{
+        if(mode==="register"){
+          const name=String(fd.get("name")||"").trim();
+          const businessName=String(fd.get("business_name")||"").trim();
+          const email=String(fd.get("email")||"").trim().toLowerCase();
+          if(!name||!businessName||!email)throw new Error("Nama owner, nama usaha, dan email wajib diisi.");
+          if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error("Format email tidak valid.");
+          if(users().some(x=>String(x.email||"").trim().toLowerCase()===email))throw new Error("Email sudah terdaftar. Gunakan email lain atau masuk dengan akun tersebut.");
+          const id="owner-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
+          const username=id.toLowerCase();
+          const storeCode=("DEMO"+Math.random().toString(36).slice(2,7)).toUpperCase();
+          const u={id,username,password,name,email,role:"owner",storeCode,active:true,createdAt:new Date().toISOString()};
+          localStorage.setItem(USERS_KEY,JSON.stringify([...users(),u]));
+          localStorage.setItem(PROFILE_KEY,JSON.stringify({ownerName:name,businessName,businessPhone:"",businessDesc:"",avatar:""}));
+          localStorage.setItem(SESSION_KEY,JSON.stringify({username,role:"owner",signedInAt:new Date().toISOString()}));
+          render();
+        }else{
+          const identity=String(fd.get(selectedRole==="owner"?"owner_email":"username")||"").trim().toLowerCase();
+          const storeCode=String(fd.get("store_code")||"").trim().toUpperCase();
+          const u=users().find(x=>(selectedRole==="owner"?String(x.email||"").trim().toLowerCase()===identity:x.username===identity)
+            &&x.password===password
+            &&(selectedRole==="owner"?x.role==="owner":x.role===selectedRole)
+            &&(!storeCode||String(x.storeCode||"").toUpperCase()===storeCode));
+          if(!u)throw new Error(selectedRole==="owner"?"Email atau password tidak cocok.":"Username, password/PIN, atau kode toko tidak cocok.");
+          if(u.active===false)throw new Error("Akun dinonaktifkan oleh Owner.");
+          localStorage.setItem(SESSION_KEY,JSON.stringify({username:u.username,role:u.role,signedInAt:new Date().toISOString()}));
+          if(u.role==="owner"&&!profile().businessName)localStorage.setItem(PROFILE_KEY,JSON.stringify({ownerName:u.name||u.username,businessName:u.storeName||"Usaha Demo",businessPhone:"",avatar:""}));
+          render();
+        }
+      }catch(err){
+        setError(err.message||"Proses gagal.");
+      }finally{
+        submit.disabled=false;
+      }
+    };
   }
   function setProfileAvatar(element,src,fallback="👤"){
     if(!element)return;
