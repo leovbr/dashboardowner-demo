@@ -154,38 +154,66 @@
   function openAccountPanel(){document.getElementById("account-popover")?.remove();const p=profile(),s=session(),u=users().find(x=>x.username===s?.username)||{},pop=document.createElement("div");pop.id="account-popover";pop.className="account-popover";pop.innerHTML='<div class="account-popover-head"><div class="account-avatar">'+(p.avatar?'<img src="'+p.avatar+'" alt="">':"👤")+'</div><div><b>'+escapeHtml(p.ownerName||u.name||u.username||"Akun")+'</b><small>Owner</small></div></div><button type="button" data-account-action="profile">✏️ Edit Profil Toko</button><button type="button" data-account-action="settings">⚙️ Pengaturan Akun</button>';document.querySelector(".topbar-inner").appendChild(pop);pop.querySelectorAll("[data-account-action]").forEach(b=>b.onclick=()=>{pop.remove();if(b.dataset.accountAction==="profile")openProfile();else if(b.dataset.accountAction==="settings")openSettings();});}
   function openProfile(){
     const p=profile(),s=session(),u=users().find(x=>x.username===s?.username)||{};
-    const m=modal("Edit Profil Toko",'<div class="ac-avatar" id="acAvatar">'+(p.avatar?'<img src="'+p.avatar+'" alt="">':"👤")+'</div><label class="ac-upload">📷 Pilih Foto<input id="acPhoto" type="file" accept="image/*" hidden></label><section class="ac-crop-editor" id="acCropEditor" hidden><p class="ac-crop-help">Geser foto untuk mengatur posisi, lalu sesuaikan zoom agar pas dengan bingkai profil.</p><div class="ac-crop-window" id="acCropWindow"><img id="acCropImage" alt="Pratinjau crop foto"></div><label class="ac-crop-zoom">Zoom <input id="acCropZoom" type="range" min="1" max="3" step="0.01" value="1"></label><div class="ac-crop-actions"><button class="btn secondary" id="acCropCancel" type="button">Batal</button><button class="btn" id="acCropApply" type="button">Gunakan Foto</button></div></section><form id="acForm" class="ac-form"><label>Nama toko<input id="acName" maxlength="80" value="'+escapeHtml(p.businessName||"")+'" placeholder="Nama toko"></label><label>Nama pemilik<input id="acOwner" maxlength="60" value="'+escapeHtml(p.ownerName||u.name||"")+'" placeholder="Nama pemilik"></label><label>Nomor WhatsApp<input id="acPhone" type="tel" maxlength="24" value="'+escapeHtml(p.businessPhone||"")+'" placeholder="08xxxxxxxxxx"></label><label>Deskripsi toko<textarea id="acDesc" maxlength="240">'+escapeHtml(p.businessDesc||"")+'</textarea></label><button class="btn" type="submit">Simpan Profil</button></form>');
-    const photoInput=m.querySelector("#acPhoto"),cropEditor=m.querySelector("#acCropEditor"),cropWindow=m.querySelector("#acCropWindow"),cropImage=m.querySelector("#acCropImage"),zoomInput=m.querySelector("#acCropZoom");
-    let sourceImage=null,positionX=50,positionY=50,drag=null;
-    const updateCrop=()=>{cropImage.style.objectPosition=positionX+"% "+positionY+"%";cropImage.style.transform="scale("+zoomInput.value+")";};
+    const m=modal("Edit Profil Toko",'<div class="ac-avatar" id="acAvatar">'+(p.avatar?'<img src="'+p.avatar+'" alt="">':"👤")+'</div><label class="ac-upload">📷 Pilih Foto<input id="acPhoto" type="file" accept="image/*" hidden></label><section class="ac-crop-editor" id="acCropEditor" hidden><p class="ac-crop-help">Geser foto ke kiri, kanan, atas, atau bawah. Cubit dua jari untuk zoom; gunakan slider jika diperlukan.</p><div class="ac-crop-window" id="acCropWindow"><canvas id="acCropCanvas" width="512" height="512" aria-label="Pratinjau crop foto"></canvas></div><label class="ac-crop-zoom">Zoom <input id="acCropZoom" type="range" min="1" max="4" step="0.01" value="1"></label><div class="ac-crop-actions"><button class="btn secondary" id="acCropCancel" type="button">Batal</button><button class="btn" id="acCropApply" type="button">Gunakan Foto</button></div></section><form id="acForm" class="ac-form"><label>Nama toko<input id="acName" maxlength="80" value="'+escapeHtml(p.businessName||"")+'" placeholder="Nama toko"></label><label>Nama pemilik<input id="acOwner" maxlength="60" value="'+escapeHtml(p.ownerName||u.name||"")+'" placeholder="Nama pemilik"></label><label>Nomor WhatsApp<input id="acPhone" type="tel" maxlength="24" value="'+escapeHtml(p.businessPhone||"")+'" placeholder="08xxxxxxxxxx"></label><label>Deskripsi toko<textarea id="acDesc" maxlength="240">'+escapeHtml(p.businessDesc||"")+'</textarea></label><button class="btn" type="submit">Simpan Profil</button></form>');
+    const photoInput=m.querySelector("#acPhoto"),cropEditor=m.querySelector("#acCropEditor"),cropWindow=m.querySelector("#acCropWindow"),canvas=m.querySelector("#acCropCanvas"),ctx=canvas.getContext("2d"),zoomInput=m.querySelector("#acCropZoom");
+    let sourceImage=null,centerX=0,centerY=0,zoom=1,pointers=new Map(),gesture=null;
+    const cropSide=()=>Math.min(sourceImage.naturalWidth,sourceImage.naturalHeight)/zoom;
+    const clampCenter=()=>{const side=cropSide();centerX=Math.max(side/2,Math.min(sourceImage.naturalWidth-side/2,centerX));centerY=Math.max(side/2,Math.min(sourceImage.naturalHeight-side/2,centerY));};
+    const drawCrop=()=>{
+      if(!sourceImage)return;
+      clampCenter();const side=cropSide();
+      ctx.clearRect(0,0,512,512);
+      ctx.drawImage(sourceImage,centerX-side/2,centerY-side/2,side,side,0,0,512,512);
+    };
+    const setZoom=value=>{zoom=Math.max(1,Math.min(4,value));zoomInput.value=String(zoom);drawCrop();};
     photoInput.onchange=e=>{
       const file=e.target.files?.[0];if(!file)return;
       if(!file.type.startsWith("image/")){alert("Pilih file gambar yang valid.");photoInput.value="";return;}
       if(file.size>8*1024*1024){alert("Ukuran foto maksimal 8 MB.");photoInput.value="";return;}
       const reader=new FileReader();
-      reader.onload=()=>{const img=new Image();img.onload=()=>{sourceImage=img;positionX=50;positionY=50;zoomInput.value="1";cropImage.src=reader.result;cropEditor.hidden=false;updateCrop();};img.onerror=()=>alert("Foto tidak dapat dibuka.");img.src=reader.result;};
+      reader.onload=()=>{const img=new Image();img.onload=()=>{sourceImage=img;centerX=img.naturalWidth/2;centerY=img.naturalHeight/2;zoom=1;zoomInput.value="1";cropEditor.hidden=false;drawCrop();};img.onerror=()=>alert("Foto tidak dapat dibuka.");img.src=reader.result;};
       reader.readAsDataURL(file);
     };
-    zoomInput.oninput=updateCrop;
-    cropWindow.onpointerdown=e=>{if(!sourceImage)return;drag={x:e.clientX,y:e.clientY,px:positionX,py:positionY};cropWindow.setPointerCapture(e.pointerId);};
-    cropWindow.onpointermove=e=>{if(!drag)return;const rect=cropWindow.getBoundingClientRect();positionX=Math.max(0,Math.min(100,drag.px-(e.clientX-drag.x)/rect.width*100));positionY=Math.max(0,Math.min(100,drag.py-(e.clientY-drag.y)/rect.height*100));updateCrop();};
-    cropWindow.onpointerup=cropWindow.onpointercancel=()=>{drag=null;};
-    m.querySelector("#acCropCancel").onclick=()=>{cropEditor.hidden=true;photoInput.value="";sourceImage=null;};
+    zoomInput.oninput=()=>setZoom(Number(zoomInput.value));
+    const pointDistance=pts=>{const a=[...pts.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);};
+    cropWindow.onpointerdown=e=>{
+      if(!sourceImage)return;e.preventDefault();cropWindow.setPointerCapture(e.pointerId);
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      if(pointers.size===1)gesture={type:"drag",x:e.clientX,y:e.clientY,cx:centerX,cy:centerY};
+      else if(pointers.size===2)gesture={type:"pinch",distance:pointDistance(pointers),zoom};
+    };
+    cropWindow.onpointermove=e=>{
+      if(!pointers.has(e.pointerId)||!sourceImage)return;e.preventDefault();
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      const rect=cropWindow.getBoundingClientRect(),side=cropSide();
+      if(pointers.size>=2&&gesture?.type==="pinch"){
+        const distance=pointDistance(pointers);
+        if(gesture.distance>0)setZoom(gesture.zoom*distance/gesture.distance);
+      }else if(pointers.size===1&&gesture?.type==="drag"){
+        centerX=gesture.cx-(e.clientX-gesture.x)*side/rect.width;
+        centerY=gesture.cy-(e.clientY-gesture.y)*side/rect.height;
+        drawCrop();
+      }
+    };
+    const endPointer=e=>{
+      pointers.delete(e.pointerId);
+      if(pointers.size===1){const [id,pt]=[...pointers.entries()][0];gesture={type:"drag",x:pt.x,y:pt.y,cx:centerX,cy:centerY};}
+      else if(pointers.size===2)gesture={type:"pinch",distance:pointDistance(pointers),zoom};
+      else gesture=null;
+    };
+    cropWindow.onpointerup=endPointer;cropWindow.onpointercancel=endPointer;cropWindow.onlostpointercapture=endPointer;
+    m.querySelector("#acCropCancel").onclick=()=>{cropEditor.hidden=true;photoInput.value="";sourceImage=null;pointers.clear();gesture=null;};
     m.querySelector("#acCropApply").onclick=()=>{
-      if(!sourceImage)return;
-      const zoom=Number(zoomInput.value)||1,side=Math.min(sourceImage.naturalWidth,sourceImage.naturalHeight)/zoom;
-      const cx=Math.max(side/2,Math.min(sourceImage.naturalWidth-side/2,sourceImage.naturalWidth*positionX/100));
-      const cy=Math.max(side/2,Math.min(sourceImage.naturalHeight-side/2,sourceImage.naturalHeight*positionY/100));
-      const canvas=document.createElement("canvas");canvas.width=512;canvas.height=512;
-      const ctx=canvas.getContext("2d");ctx.drawImage(sourceImage,cx-side/2,cy-side/2,side,side,0,0,512,512);
-      m.dataset.avatar=canvas.toDataURL("image/jpeg",.86);
+      if(!sourceImage)return;drawCrop();
+      m.dataset.avatar=canvas.toDataURL("image/jpeg",.88);
       m.querySelector("#acAvatar").innerHTML='<img src="'+m.dataset.avatar+'" alt="Foto profil">';
-      cropEditor.hidden=true;sourceImage=null;photoInput.value="";
+      cropEditor.hidden=true;sourceImage=null;pointers.clear();gesture=null;photoInput.value="";
     };
     m.querySelector("#acForm").onsubmit=e=>{
       e.preventDefault();
-      localStorage.setItem(PROFILE_KEY,JSON.stringify({...profile(),businessName:m.querySelector("#acName").value.trim(),ownerName:m.querySelector("#acOwner").value.trim(),businessPhone:m.querySelector("#acPhone").value.trim(),businessDesc:m.querySelector("#acDesc").value.trim(),avatar:m.dataset.avatar||profile().avatar||""}));
-      m.remove();renderDashboard();
+      const nextProfile={...profile(),businessName:m.querySelector("#acName").value.trim(),ownerName:m.querySelector("#acOwner").value.trim(),businessPhone:m.querySelector("#acPhone").value.trim(),businessDesc:m.querySelector("#acDesc").value.trim(),avatar:m.dataset.avatar||profile().avatar||""};
+      localStorage.setItem(PROFILE_KEY,JSON.stringify(nextProfile));
+      m.remove();render();
     };
   }
   function openSettings(){const s=session(),u=users().find(x=>x.username===s?.username)||{},p=profile(),m=modal("Pengaturan Akun",'<div class="ac-item"><b>Akun aktif</b><div class="ac-note">'+escapeHtml(u.username||"—")+'</div></div><div class="ac-item"><b>Pemilik</b><div class="ac-note">'+escapeHtml(p.ownerName||u.name||"Belum diatur")+'</div></div><div class="ac-item"><b>Penyimpanan</b><div class="ac-note">Saat ini lokal di browser ini; sinkronisasi cloud belum aktif.</div></div><div class="ac-actions"><button class="btn secondary" id="changePassword" type="button">Ubah Password</button></div>');m.querySelector("#changePassword").onclick=()=>{m.remove();openChangePassword();};}
