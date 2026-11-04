@@ -642,3 +642,8 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .top-brand small{color:var(--muted);font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:700}
 @keyframes storeNameShine{0%,58%{background-position:100% 0}100%{background-position:-140% 0}}
 @media(prefers-reduced-motion:reduce){.top-brand b{animation:none;background:none;-webkit-text-fill-color:currentColor;color:var(--text)}}
+
+
+/* Shared animated store-name treatment for staff header */
+.staff-brand-copy strong{position:relative;display:inline-block;width:max-content;max-width:min(68vw,520px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#f3f6ff;background:linear-gradient(105deg,#f3f6ff 0%,#f3f6ff 38%,#9fc7ff 46%,#fff 50%,#c8a8ff 54%,#f3f6ff 62%,#f3f6ff 100%);background-size:240% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:storeNameShine 5.5s ease-in-out infinite}
+.staff-brand-copy span{color:var(--muted);font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:700}
