@@ -291,7 +291,7 @@
   function renderStaffDashboard(){
     const s=session(),u=users().find(x=>x.username===s?.username);if(!u){localStorage.removeItem(SESSION_KEY);return renderAuth();}
     document.getElementById("topbar").hidden=true;document.getElementById("brandIntro").hidden=true;document.getElementById("staffTopbar").hidden=false;
-    const p=profile();document.getElementById("staffStoreName").textContent=p.businessName||u.storeName||u.storeCode||"Nama Toko Belum Diatur";setProfileAvatar(document.getElementById("staffAvatar"),p.avatar);
+    const p=profile();document.getElementById("staffStoreName").textContent=p.businessName||u.storeName||u.storeCode||"Nama Toko Belum Diatur";
     const role=u.role||"owner",roleNames={manager:"Manager",kitchen:"Kitchen",waiter:"Waiter / Penjual"},heading={manager:"Manager Dashboard",kitchen:"Kitchen Dashboard",waiter:"Penjual Dashboard"};
     let body='';
     if(role==="waiter"){
