@@ -618,3 +618,16 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .revenue-candle-detail strong{font-size:14px;line-height:1.35}
 .revenue-candle-detail>b{font-size:13px;line-height:1.35}
 .revenue-candle-detail>b small{font-size:11px}
+
+
+/* Profile photo crop editor */
+.ac-crop-editor{display:grid;gap:12px;margin:14px 0 18px;padding:14px;border:1px solid #30415f;border-radius:16px;background:#0a1222}
+.ac-crop-editor[hidden]{display:none!important}
+.ac-crop-help{margin:0;color:#aab8d0;font-size:13px;line-height:1.5}
+.ac-crop-window{position:relative;width:min(100%,280px);aspect-ratio:1/1;margin:0 auto;overflow:hidden;border:2px solid #6c91df;border-radius:22px;background:#050b16;touch-action:none;cursor:grab}
+.ac-crop-window:active{cursor:grabbing}
+.ac-crop-window:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.45);border-radius:20px;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16)}
+.ac-crop-window img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%;transform-origin:center;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.ac-crop-zoom{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;color:#dbe7fb;font-size:13px;font-weight:650}
+.ac-crop-zoom input{width:100%;accent-color:#6b91ff}
+.ac-crop-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
