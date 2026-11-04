@@ -767,3 +767,23 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .team-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
   .team-actions button{width:100%;min-width:0}
 }
+
+
+/* Owner-managed Kitchen stock configuration and responsive Kitchen forms */
+.kitchen-stock-config-list{display:grid;gap:14px;margin:8px 0 18px}
+.kitchen-stock-config-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,.45fr) auto;gap:12px;align-items:end;padding:14px;border:1px solid #293a57;border-radius:14px;background:rgba(8,16,30,.55)}
+.kitchen-stock-config-row .field{min-width:0;margin:0}
+.kitchen-stock-config-row .btn{min-height:46px}
+.kitchen-dynamic-stock-field{display:grid;gap:7px;margin:0 0 15px}
+.kitchen-dynamic-stock-field input{box-sizing:border-box;width:100%;min-width:0}
+.kitchen-dynamic-stock-current{display:block;margin:0}
+.kitchen-production-form,.kitchen-stock-card .ac-form{min-width:0}
+.kitchen-item-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,.45fr) auto;gap:10px;align-items:end}
+.kitchen-item-row label{min-width:0}
+.kitchen-item-row input{box-sizing:border-box;width:100%;min-width:0}
+@media(max-width:600px){
+  .kitchen-stock-config-row{grid-template-columns:minmax(0,1fr);gap:9px}
+  .kitchen-stock-config-row .btn{width:100%}
+  .kitchen-item-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .kitchen-item-row .kitchen-remove-item{grid-column:1/-1;width:100%}
+}
