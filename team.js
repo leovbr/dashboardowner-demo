@@ -1,6 +1,6 @@
 (() => {
 "use strict";
-const $=id=>document.getElementById(id),KEY="dashboardowner_proto_users_v1",SESSION="dashboardowner_proto_session_v1";
+const $=id=>document.getElementById(id),KEY="dashboardowner_demo_proto_users_v1",SESSION="dashboardowner_demo_proto_session_v1";
 const read=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},write=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const roles={manager:"Manager",kitchen:"Kitchen",waiter:"Waiter / Penjual"};
