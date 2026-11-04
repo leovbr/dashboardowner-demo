@@ -64,12 +64,22 @@
       else{const username=String(fd.get(selectedRole==="owner"?"owner_username":"username")||"").trim().toLowerCase(),storeCode=String(fd.get("store_code")||"").trim().toUpperCase(),u=users().find(x=>x.username===username&&x.password===password&&(selectedRole==="owner"?x.role==="owner":x.role===selectedRole)&&(!storeCode||String(x.storeCode||"").toUpperCase()===storeCode));if(!u)throw new Error("Username, password/PIN, atau kode toko tidak cocok.");if(u.active===false)throw new Error("Akun dinonaktifkan oleh Owner.");localStorage.setItem(SESSION_KEY,JSON.stringify({username:u.username,role:u.role,signedInAt:new Date().toISOString()}));if(u.role==="owner"&&!profile().businessName)localStorage.setItem(PROFILE_KEY,JSON.stringify({ownerName:u.name||u.username,businessName:u.storeName||"Usaha Demo",businessPhone:"",avatar:""}));render();}}
       catch(err){setError(err.message||"Proses gagal.");}finally{submit.disabled=false;}};
   }
+  function setProfileAvatar(element,src,fallback="👤"){
+    if(!element)return;
+    element.replaceChildren();
+    if(!src){element.textContent=fallback;return;}
+    const img=document.createElement("img");
+    img.alt="Foto profil toko";
+    img.onerror=()=>{element.replaceChildren();element.textContent=fallback;};
+    img.src=src;
+    element.appendChild(img);
+  }
   function renderDashboard(){
     const s=session(),u=users().find(x=>x.username===s?.username);if(!u){localStorage.removeItem(SESSION_KEY);return renderAuth();}
     const p=profile();
     document.getElementById("staffTopbar").hidden=true;document.getElementById("topbar").hidden=false;document.getElementById("brandIntro").hidden=true;
     document.getElementById("topbarBusinessName").textContent=p.businessName||"Owner Dashboard";
-    document.getElementById("accountButtonNative").innerHTML=p.avatar?'<img src="'+p.avatar+'" alt="Foto profil">':"👤";
+    setProfileAvatar(document.getElementById("accountButtonNative"),p.avatar);
     const allSales=read("dashboardowner_demo_staff_sales_v1",[]),allExpenses=read("dashboardowner_demo_staff_expenses_v1",[]),visibleSales=allSales.filter(x=>(!u.storeCode||x.storeCode===u.storeCode)&&saleBusinessDay(x)===businessDayKey(new Date())),visibleExpenses=allExpenses.filter(x=>!u.storeCode||x.storeCode===u.storeCode),offline=visibleSales.filter(x=>(x.channel||"offline")==="offline").reduce((n,x)=>n+(Number(x.total)||0),0),online=visibleSales.filter(x=>x.channel==="online").reduce((n,x)=>n+(Number(x.total)||0),0);
     app.innerHTML='<h2>Ringkasan Omzet</h2><p class="welcome">Halo, <strong>'+escapeHtml(p.ownerName||u.name||u.username)+'</strong>. Pantau kenaikan dan penurunan omzet harian.</p><section class="sales-summary-grid"><button type="button" class="sales-summary-card" id="analysis-offline"><span>Penjualan Offline</span><strong>'+money(offline)+'</strong><small>Kasir biasa</small></button><button type="button" class="sales-summary-card" id="analysis-online"><span>Penjualan Online</span><strong>'+money(online)+'</strong><small>GrabFood, GoFood, ShopeeFood, lainnya</small></button><div class="sales-summary-card sales-summary-total"><span>Total Gabungan Offline + Online</span><strong>'+money(offline+online)+'</strong></div></section><section class="revenue-panel"><div class="revenue-head"><div><span class="revenue-kicker">GRAFIK OMZET</span></div></div><div class="analysis-chart-tabs" role="group" aria-label="Sumber data candle"><button type="button" data-chart-source="offline" class="active">Offline</button><button type="button" data-chart-source="online">Online</button><button type="button" data-chart-source="combined">Gabungan</button></div><div class="candle-chart" id="revenueChart"></div></section><section class="module-card inventory-dashboard-card"><div id="owner-inventory-content"></div></section>';
     document.getElementById("analysis-offline").onclick=()=>renderSalesPage("offline");
@@ -283,7 +293,7 @@
   function renderStaffDashboard(){
     const s=session(),u=users().find(x=>x.username===s?.username);if(!u){localStorage.removeItem(SESSION_KEY);return renderAuth();}
     document.getElementById("topbar").hidden=true;document.getElementById("brandIntro").hidden=true;document.getElementById("staffTopbar").hidden=false;
-    const p=profile();document.getElementById("staffStoreName").textContent=p.businessName||u.storeName||u.storeCode||"Nama Toko Belum Diatur";document.getElementById("staffAvatar").innerHTML=p.avatar?'<img src="'+p.avatar+'" alt="Foto profil toko">':"👤";
+    const p=profile();document.getElementById("staffStoreName").textContent=p.businessName||u.storeName||u.storeCode||"Nama Toko Belum Diatur";setProfileAvatar(document.getElementById("staffAvatar"),p.avatar);
     const role=u.role||"owner",roleNames={manager:"Manager",kitchen:"Kitchen",waiter:"Waiter / Penjual"},heading={manager:"Manager Dashboard",kitchen:"Kitchen Dashboard",waiter:"Penjual Dashboard"};
     let body='';
     if(role==="waiter"){
