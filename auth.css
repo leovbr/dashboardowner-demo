@@ -647,3 +647,123 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 /* Shared animated store-name treatment for staff header */
 .staff-brand-copy strong{position:relative;display:inline-block;width:max-content;max-width:min(68vw,520px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#f3f6ff;background:linear-gradient(105deg,#f3f6ff 0%,#f3f6ff 38%,#9fc7ff 46%,#fff 50%,#c8a8ff 54%,#f3f6ff 62%,#f3f6ff 100%);background-size:240% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:storeNameShine 5.5s ease-in-out infinite}
 .staff-brand-copy span{color:var(--muted);font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:700}
+
+
+/* Team & Accounts: responsive form and staff list */
+.team-wrap{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:22px;
+  width:100%;
+  min-width:0;
+  margin:22px 0;
+}
+.team-card{
+  min-width:0;
+  width:100%;
+  padding:18px;
+  border:1px solid var(--line,#25334e);
+  border-radius:17px;
+  background:rgba(10,17,32,.72);
+}
+.team-heading{display:grid;gap:8px;margin-bottom:18px;min-width:0}
+.team-heading .eyebrow{margin:0 0 2px}
+.team-heading h3{margin:0;font-size:19px;line-height:1.35}
+.team-form{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:13px;
+  width:100%;
+  min-width:0;
+}
+.team-form>label{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:7px;
+  width:100%;
+  min-width:0;
+  margin:0;
+  color:#dce6f8;
+  font-size:14px;
+  font-weight:650;
+  line-height:1.4;
+}
+.team-form input,
+.team-form select{
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  min-height:48px;
+  margin:0;
+  padding:12px 14px;
+  border:1px solid #30415f;
+  border-radius:12px;
+  background:#090f1d;
+  color:var(--text,#f2f5ff);
+  font:inherit;
+  font-size:15px;
+  line-height:1.4;
+  outline:none;
+}
+.team-form input::placeholder{color:#71809a;opacity:1}
+.team-form input:focus,
+.team-form select:focus{
+  border-color:#6596ff;
+  box-shadow:0 0 0 3px rgba(101,150,255,.16);
+}
+.team-form input[readonly]{color:#a9c8ff;background:#111d32}
+.team-form .btn{width:100%;min-width:0;margin-top:2px;min-height:52px}
+.team-credential{
+  margin-top:16px;
+  padding:14px;
+  border:1px solid #315b83;
+  border-radius:13px;
+  background:#10233a;
+  overflow-wrap:anywhere;
+  line-height:1.8;
+}
+.team-credential code{color:#b9d4ff;font-weight:750}
+.team-note{color:var(--muted,#97a5c0);font-size:12px;line-height:1.65;margin:16px 0 0}
+.team-list{display:grid;gap:10px;min-width:0}
+.team-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  min-width:0;
+  padding:13px;
+  border:1px solid #263650;
+  border-radius:13px;
+  background:#0b1425;
+}
+.team-main{display:grid;gap:4px;min-width:0}
+.team-main b{overflow-wrap:anywhere}
+.team-main small{overflow-wrap:anywhere;line-height:1.45}
+.team-actions{display:flex;flex-wrap:wrap;gap:7px;flex:0 0 auto}
+.team-actions button{
+  min-height:36px;
+  padding:7px 10px;
+  border:1px solid #34435e;
+  border-radius:9px;
+  background:#111e33;
+  color:#c7d8ff;
+  font:inherit;
+  font-size:12px;
+  cursor:pointer;
+}
+.team-actions button:last-child{color:#ffb2bd}
+#teamBack{margin-top:4px}
+@media(min-width:820px){
+  .team-wrap{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:start}
+}
+@media(max-width:560px){
+  .team-card{padding:16px}
+  .team-form{gap:12px}
+  .team-form>label{font-size:14px}
+  .team-form input,.team-form select{min-height:50px;font-size:15px}
+  .team-row{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+  .team-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+  .team-actions button{width:100%;min-width:0}
+}
