@@ -74,7 +74,7 @@
     const staffFields='<label class="field"><span>Username</span><input name="username" autocomplete="username" minlength="3" maxlength="32" required placeholder="Username staff"></label><label class="field"><span>Kode toko</span><input name="store_code" required maxlength="40" placeholder="Kode dari owner"></label>';
 
     const roleField=mode==="login"
-      ? '<label class="field"><span>Masuk sebagai</span><select name="role" id="login-role"><option value="owner">Owner</option><option value="manager">Manager</option><option value="kitchen">Kitchen</option><option value="waiter">Waiter / Penjual</option></select></label>'
+      ? '<label class="field"><span>Masuk sebagai</span><select name="role" id="login-role"><option value="owner">Owner</option><option value="kitchen">Kitchen</option><option value="waiter">Waiter / Penjual</option></select></label>'
       : '';
     const identityFields=mode==="register"
       ? ownerFields
@@ -336,7 +336,7 @@
     const s=session(),u=users().find(x=>x.username===s?.username);if(!u){localStorage.removeItem(SESSION_KEY);return renderAuth();}
     document.getElementById("topbar").hidden=true;document.getElementById("brandIntro").hidden=true;document.getElementById("staffTopbar").hidden=false;
     const p=profile();document.getElementById("staffStoreName").textContent=p.businessName||u.storeName||u.storeCode||"Nama Toko Belum Diatur";
-    const role=u.role||"owner",roleNames={manager:"Manager",kitchen:"Kitchen",waiter:"Waiter / Penjual"},heading={manager:"Manager Dashboard",kitchen:"Kitchen Dashboard",waiter:"Penjual Dashboard"};
+    const role=u.role||"owner";if(role!=="kitchen"&&role!=="waiter"){localStorage.removeItem(SESSION_KEY);return renderAuth();}const roleNames={kitchen:"Kitchen",waiter:"Waiter / Penjual"},heading={kitchen:"Kitchen Dashboard",waiter:"Penjual Dashboard"};
     let body='';
     if(role==="waiter"){
       const all=read("dashboardowner_demo_staff_sales_v1",[]),mine=all.filter(x=>x.staffUsername===u.username),expenseRows=read("dashboardowner_demo_staff_expenses_v1",[]).filter(x=>!u.storeCode||x.storeCode===u.storeCode),day=new Date().toLocaleDateString("en-CA"),todayRows=mine.filter(x=>x.date===day),plist=products().filter(p=>p&&p.active!==false);
