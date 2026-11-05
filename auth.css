@@ -61,7 +61,7 @@ footer{text-align:center;color:#66748e;font-size:11px;padding:18px}
 @media(max-width:520px){.module-head{align-items:flex-start}.module-head h2{font-size:21px}.product-row.product-manage{align-items:flex-start;flex-direction:column}.product-actions{width:100%}.product-actions button{flex:1}.product-tools{align-items:stretch;flex-direction:column}.product-tools input{width:100%}}
 
 
-/* Header refinement: keep the Owner Dashboard / Business Manager text and move the profile icon to the right-side controls. */
+/* Header refinement: keep the Owner Dashboard / OPERATIONS text and move the profile icon to the right-side controls. */
 .top-brand-mark{display:none!important}
 .top-brand{gap:0!important}
 .account-center-native{order:1!important;margin-left:auto!important;flex:0 0 auto!important}
