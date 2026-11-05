@@ -893,3 +893,11 @@ body:has(#topbar:not([hidden])) #app{width:100%;min-width:0}
  .side-menu{max-height:calc(100dvh - 70px)}
  .ac-dialog,.team-info-dialog{max-height:88dvh;overflow:auto}
 }
+
+/* Unified Owner / embedded Staff store identity */
+
+.top-brand b#topbarBusinessName,.staff-brand-copy strong#staffStoreName{font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif!important;font-size:clamp(19px,2.2vw,23px)!important;font-weight:950!important;letter-spacing:.045em!important;line-height:1.15!important;text-shadow:0 0 18px rgba(91,151,255,.22);background:linear-gradient(100deg,#f5f8ff 0%,#8bb8ff 24%,#42d8ed 48%,#f5f8ff 65%,#c5a4ff 82%,#f5f8ff 100%);background-size:260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:unifiedStoreGlow 3.8s ease-in-out infinite}
+.top-brand small,.staff-brand-copy span{font-size:10px!important;font-weight:850!important;letter-spacing:.19em!important;color:#8fbaff!important;text-transform:uppercase}
+@keyframes unifiedStoreGlow{0%,100%{background-position:100% 50%;filter:drop-shadow(0 0 2px #6596ff33)}50%{background-position:0% 50%;filter:drop-shadow(0 0 7px #6596ff77)}}
+@media(max-width:520px){.top-brand b#topbarBusinessName,.staff-brand-copy strong#staffStoreName{font-size:17px!important;letter-spacing:.025em!important}}
+@media(prefers-reduced-motion:reduce){.top-brand b#topbarBusinessName,.staff-brand-copy strong#staffStoreName{animation:none!important;background:none;-webkit-text-fill-color:#f5f8ff;color:#f5f8ff}}
