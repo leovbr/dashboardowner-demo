@@ -838,3 +838,8 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
  .kitchen-stock-add-row{grid-template-columns:minmax(0,1fr)}
  .kitchen-stock-add-row .btn{grid-column:1}
 }
+
+.team-info-modal{position:fixed;inset:0;z-index:10020;display:grid;place-items:center;padding:18px;background:#020812d9;backdrop-filter:blur(8px)}
+.team-info-dialog{position:relative;width:min(420px,100%);padding:22px;border:1px solid #2b3d5c;border-radius:18px;background:#0b1527;color:#eef4ff;box-shadow:0 24px 70px #0009}
+.team-info-dialog h3{margin:6px 0 16px;font-size:22px}.team-info-dialog p{margin:9px 0;color:#b8c5dc;overflow-wrap:anywhere}.team-info-close{position:absolute;right:13px;top:10px;border:0;background:none;color:#aab9d0;font-size:27px}
+.team-pin-box{display:grid;gap:9px;margin:18px 0;padding:15px;border:1px solid #344766;border-radius:13px;background:#111f36}.team-pin-box span{font-size:11px;color:#9fb2d0;letter-spacing:.12em}.team-pin-box strong{font-size:28px;letter-spacing:.16em}.team-pin-box button{border:1px solid #3a5d91;border-radius:10px;padding:11px;background:#1b365c;color:#fff;font-weight:700}.team-info-dialog>small{color:#8394ae}
