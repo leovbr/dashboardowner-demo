@@ -14,3 +14,43 @@ footer{text-align:center;color:#66748e;font-size:11px;padding:20px}
 .staff-brand b{position:relative;display:inline-block;width:max-content;max-width:min(68vw,520px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#f3f6ff;background:linear-gradient(105deg,#f3f6ff 0%,#f3f6ff 38%,#9fc7ff 46%,#fff 50%,#c8a8ff 54%,#f3f6ff 62%,#f3f6ff 100%);background-size:240% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:storeNameShine 5.5s ease-in-out infinite}
 @keyframes storeNameShine{0%,12%{background-position:150% 0}78%,100%{background-position:-180% 0}}
 @media(prefers-reduced-motion:reduce){.staff-brand b{animation:none;background:none;-webkit-text-fill-color:currentColor;color:var(--text)}}
+
+
+/* Responsive layout system: Staff / Kitchen / Waiter portal */
+html,body{width:100%;max-width:100%;overflow-x:clip}
+.staff-topbar{padding-inline:max(14px,calc((100% - 1180px)/2))}
+.staff-shell{width:min(1180px,100%);max-width:1180px;padding:clamp(20px,3vw,38px) clamp(14px,2.5vw,30px) 48px}
+#staffApp{width:100%;min-width:0}
+#staffApp>*{min-width:0;max-width:100%}
+#staffApp .card,#staffApp .staff-page-form,#staffApp .staff-page-row{min-width:0;max-width:100%}
+#staffApp input,#staffApp select,#staffApp textarea,#staffApp button{max-width:100%}
+@media(min-width:900px){
+ .staff-shell{padding-top:38px}
+ #staffApp .summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+ #staffApp .product-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ #staffApp .card{padding:24px}
+}
+@media(min-width:600px) and (max-width:899px){
+ .staff-shell{width:100%;padding:24px 22px 40px}
+ #staffApp .product-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:599px){
+ .staff-topbar{padding:10px 13px}
+ .staff-shell{width:100%;padding:18px 12px 32px}
+ #staffApp .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #staffApp .summary-grid .summary:last-child:nth-child(odd){grid-column:1/-1}
+ #staffApp .form-grid{grid-template-columns:1fr}
+ #staffApp .span-all{grid-column:auto}
+ #staffApp .section-head{align-items:flex-start;flex-wrap:wrap}
+ #staffApp .history-row,#staffApp .staff-page-row{flex-wrap:wrap}
+ #staffApp .history-row>strong,#staffApp .staff-page-row>strong{white-space:normal}
+ #staffApp .total-line{flex-wrap:wrap}
+ #staffApp .total-line strong{font-size:21px}
+}
+@media(max-width:380px){
+ #staffApp .summary-grid{gap:7px}
+ #staffApp .summary{padding:10px}
+ #staffApp .product-row{grid-template-columns:minmax(0,1fr) 68px;gap:7px;padding:9px}
+ #staffApp .qty{padding:9px 4px}
+}
+@media(orientation:landscape) and (max-height:520px){.staff-shell{padding-top:14px;padding-bottom:24px}}
