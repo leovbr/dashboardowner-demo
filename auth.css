@@ -787,3 +787,54 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .kitchen-item-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   .kitchen-item-row .kitchen-remove-item{grid-column:1/-1;width:100%}
 }
+
+
+/* Kitchen mobile polish: consistent dark inputs, compact spacing and responsive actions */
+.kitchen-production-card,
+.kitchen-production-card .module-card,
+.kitchen-stock-card{min-width:0}
+.kitchen-stock-card{padding:16px;margin:16px 0}
+.kitchen-stock-card h3,
+.kitchen-production-card>section>h3{margin:0 0 14px;line-height:1.3}
+.kitchen-stock-add-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(82px,.38fr);gap:9px;align-items:stretch;margin:14px 0}
+.kitchen-stock-add-row input,
+.kitchen-stock-config-row input,
+.kitchen-production-edit-name,
+#kitchen-new-stock-name,
+#kitchen-new-stock-unit,
+#kitchen-new-production-name{display:block;width:100%;min-width:0;min-height:44px;padding:11px 13px;border:1px solid #2a3855!important;border-radius:11px!important;background:#090f1d!important;color:var(--text)!important;font:inherit!important;outline:none;box-shadow:none}
+.kitchen-stock-add-row input::placeholder,
+#kitchen-new-stock-name::placeholder,
+#kitchen-new-production-name::placeholder{color:#71809a}
+.kitchen-stock-add-row input:focus,
+.kitchen-stock-config-row input:focus,
+#kitchen-new-stock-name:focus,
+#kitchen-new-stock-unit:focus,
+#kitchen-new-production-name:focus{border-color:var(--blue)!important;box-shadow:0 0 0 3px #6596ff20!important}
+.kitchen-stock-add-row .btn{grid-column:1/-1;width:100%;min-height:48px;margin:0;padding:11px 14px}
+.kitchen-stock-card>.btn{min-height:48px;margin:8px 0 0;padding:11px 14px}
+.kitchen-stock-entry{padding:12px;border:1px solid #25334e;border-radius:12px;background:#0a1120;margin:10px 0}
+.kitchen-stock-entry .field{margin:0}
+.kitchen-stock-item-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.kitchen-stock-item-actions .btn{width:100%;min-height:42px;margin:0;padding:9px 12px}
+.kitchen-stock-config-row{grid-template-columns:minmax(0,1fr);gap:9px;padding:12px}
+.kitchen-stock-config-row .btn{width:100%;min-height:42px;margin:0;padding:9px 12px}
+.kitchen-production-card>section.module-card{padding:16px;margin:16px 0}
+.kitchen-production-card>section:last-child{margin-bottom:0}
+.kitchen-production-card>section:last-child h3{max-width:100%;overflow-wrap:anywhere}
+.kitchen-production-form>.btn{min-height:46px;margin-top:7px}
+.kitchen-dynamic-stock-current{font-size:12px;line-height:1.5}
+@media(max-width:600px){
+ .kitchen-production-card{padding:15px}
+ .kitchen-production-card h3{font-size:19px}
+ .kitchen-stock-card{padding:14px}
+ .kitchen-stock-add-row{grid-template-columns:minmax(0,1fr) minmax(76px,.38fr);gap:8px}
+ .kitchen-stock-add-row input{font-size:14px!important;padding:10px}
+ .kitchen-stock-add-row .btn{grid-column:1/-1}
+ .kitchen-stock-item-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .kitchen-stock-config-row{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:360px){
+ .kitchen-stock-add-row{grid-template-columns:minmax(0,1fr)}
+ .kitchen-stock-add-row .btn{grid-column:1}
+}
